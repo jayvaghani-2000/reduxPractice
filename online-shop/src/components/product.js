@@ -1,23 +1,23 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { add } from '../store/cartSlice'
+import { fetchProduct } from '../store/productSlice'
 
 const Product = () => {
-    const [product, setProduct] = useState([])
-    const [loading, setLoading] = useState(true)
+    const dispatch = useDispatch()
 
-    const getProducts = async () => {
-        try {
-            const res = await axios.get(`https://api.escuelajs.co/api/v1/products`)
-            setProduct(res.data.slice(0, 20))
-        } catch (err) {
+    const {loading, data:product} = useSelector(state => (state.products))
 
-        } finally {
-            setLoading(false)
-        }
-    }
     useEffect(() => {
-        getProducts()
+        if(product.length) return
+        dispatch(fetchProduct())
     }, [])
+
+    const handleAdd = (i) => {
+        dispatch(add(i))
+    }
+
     return (
         loading ? <h5>Loading.......</h5> : <>
                 <div className='productsWrapper'>
@@ -26,7 +26,7 @@ const Product = () => {
                         <img src={i.images} alt={i.title} />
                         <h4>{i.title}</h4>
                         <h5>{i.price}</h5>
-                        <button className='btn'>Add to cart</button>
+                        <button className='btn' onClick={() => {handleAdd(i)}}>Add to cart</button>
                     </div>
             ))}
             </div>
